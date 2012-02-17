@@ -1,0 +1,29 @@
+!!!
+%html
+  %head
+    %title
+      Read Later:
+      = yield :blogtitle
+      &raquo;
+      = yield :posttitle
+    = stylesheet_link_tag    "application"
+    = javascript_include_tag "application"
+    = csrf_meta_tags
+  %body
+    #main{:class => 'container'}
+      #header
+        #logohead
+          Read Later
+        #logotagline
+          Fetch a whole blog&rsquo;s history, and read it slowly.
+      #nav
+        %a{:href => home_path} Home
+      #trunk
+        .blogtitle
+          = yield :blogtitle
+        .posttitle
+          = yield :posttitle
+        .postbody
+          = yield
+      #footer
+        &copy; 2012

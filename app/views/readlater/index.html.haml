@@ -1,0 +1,14 @@
+- content_for :blogtitle do
+  All Blogs
+
+- content_for :posttitle do
+  Welcome
+
+%ol
+  - @blogs.each do |blog|
+    %li
+      %a{:href => blog_path(:id => blog.id)} #{blog.name}
+      by
+      = blog.by
+      = surround '(', ' left to read)' do
+        = blog.saved_posts.unread.count

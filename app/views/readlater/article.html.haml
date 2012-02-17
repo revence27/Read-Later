@@ -1,0 +1,18 @@
+- content_for :blogtitle do
+  = @blog.name
+
+- content_for :posttitle do
+  != @post.title
+
+.byline
+  = time_ago_in_words @post.when
+  ago
+  = surround '(', ')' do
+    %a{:href => @post.original} see original
+
+.cahouna
+  %img{:alt => %[#{@post.title} by #{@blog.by}], :src => @post.picture, :style => 'float:left;'}/
+  !=  @post.html.gsub('&lt;', '<').gsub('&gt;', '>').gsub('&apos;', "'").gsub('&quot;', '"').gsub('&amp;', '&')
+
+.dashboard
+  = button_to 'Mark as read', read_post_path(:blog => @blog.id, :id => @post.id)  # , :confirm => 'This means that you have finished reading it.'

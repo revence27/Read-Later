@@ -1,0 +1,285 @@
+// Place all the styles related to the costs controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+$general_font: "VarelaRoundRegular", "Sans serif";
+$reading_font: "AlegreyaRegular", "Serif";
+$number_font: "LintsecRegular", "Monospace";
+$unicef_blue: #00b0f0;
+$unicef_orange: #ffa955;
+$base_colour: #a9a9a9;
+
+body, table
+{
+  font-size: 15pt;
+  font-family: $general_font;
+}
+
+a
+{
+  color: $unicef_blue;
+}
+
+#footer
+{
+  font-size: 50%;
+  text-align: center;
+  margin-top: 5em;
+}
+
+#navbar
+{
+  text-align: center;
+  a
+  {
+    text-decoration: none;
+  }
+
+  .navitem
+  {
+    margin: 1em;
+  }
+}
+
+.stdout
+{
+  padding: 1em;
+  border: 1px $unicef_blue solid;
+  border-radius: 0.5em 0.5em 0.5em 0.5em;
+  font-size: 75%;
+}
+
+.components
+{
+  .label
+  {
+    font-size: 120%;
+    font-weight: bold;
+    text-shadow: 0em 0em 0.50em $base_colour;
+  }
+
+  .component
+  {
+    .activities
+    {
+      .label
+      {
+        font-weight: bold;
+      }
+
+      .activity
+      {
+        border: 1px $unicef_blue solid;
+        border-radius: 0.5em 0.5em 0.5em 0.5em;
+        padding: 0.5em;
+      }
+    }
+  }
+}
+
+.plainjaneform
+{
+  margin: 0px;
+}
+
+.regionnav
+{
+  text-align: center;
+}
+
+.regions
+{
+  .region
+  {
+    .regionname
+    {
+      font-size: 120%;
+      font-weight: bold;
+      text-shadow: 0em 0em 0.50em $base_colour;
+    }
+
+    .district
+    {
+      border: 1px $unicef_blue solid;
+      border-radius: 0.5em 0.5em 0.5em 0.5em;
+      padding: 0.5em;
+      font-size: 80%;
+
+      .districtname
+      {
+        font-weight: bold;
+        display: inline;
+      }
+
+      .districtdata
+      {
+        display: inline;
+        margin-left: 1em;
+        font-style: italic;
+        font-size: smaller;
+      }
+
+      .submitter
+      {
+        display: inline;
+        margin-left: 1em;
+        font-style: normal;
+      }
+
+      table
+      {
+        font-size: 100%;
+
+        thead
+        {
+          th
+          {
+            border-radius: 0.5em 0.5em 0.5em 0.5em;
+            background: $unicef_blue;
+          }
+        }
+
+        .heading
+        {
+          width: 30%;
+          text-align: right;
+        }
+
+        .data
+        {
+          text-align: left;
+          letter-spacing: 0.125em;
+          font-family: $number_font;
+
+          .numberunits
+          {
+            font-family: $general_font;
+          }
+        }
+
+        .smallhead
+        {
+          font-weight: bold;
+          text-align: center;
+        }
+
+        .sumrow
+        {
+          font-size: large;
+        }
+      }
+    }
+  }
+}
+
+.activityitem
+{
+  font-weight: normal;
+  font-size: 75%;
+}
+
+.componentsel
+{
+  width: 100%;
+  text-align: center;
+  font-family: $general_font;
+  font-size: 75%;
+}
+
+.items
+{
+  margin-left: 1em;
+}
+
+fieldset
+{
+  border-radius: 0.5em 0.5em 0.5em 0.5em;
+}
+
+select
+{
+  border-radius: 0.5em 0.5em 0.5em 0.5em;
+
+  option
+  {
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+  }
+}
+
+#trunk
+{
+  margin: 1em;
+  padding: 1em;
+
+  .blogtitle
+  {
+    font-weight: bolder;
+    font-size: 200%;
+  }
+
+  .posttitle
+  {
+    font-weight: bolder;
+    font-size: 150%;
+  }
+
+  .byline
+  {
+    font-size: 50%;
+  }
+
+  .cahouna
+  {
+    margin-top: 1em;
+    font-family: $reading_font;
+  }
+}
+
+#throbber
+{
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 75%;
+  color: $unicef_orange;
+  font-weight: bold;
+  letter-spacing: 0.5em;
+  position: fixed;
+  z-index: 20;
+  top: 0px;
+  left: 50%;
+  text-shadow: 0em 0.1em 0.5em $unicef_orange;
+}
+
+#header
+{
+  font-size: 200%;
+  margin-bottom: 1em;
+  color: $unicef_blue;
+  text-shadow: 0em 0em 0.50em $unicef_blue;
+
+  #tagline
+  {
+    text-align: left;
+    text-align: center;
+    font-weight: bold;
+    font-size: 120%;
+
+    #explication
+    {
+      font-size: 25%;
+      text-shadow: 0px 0px 0px;
+      font-weight: normal;
+      color: $base_colour;
+    }
+  }
+
+  #logoface
+  {
+    text-align: right;
+  }
+
+  #logotagline
+  {
+    font-size: 50%;
+  }
+}

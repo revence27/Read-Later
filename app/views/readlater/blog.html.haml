@@ -1,0 +1,12 @@
+- content_for :blogtitle do
+  = @blog.name
+
+- content_for :posttitle do
+  = %[Number of new articles: ] + @blog.saved_posts.unread.count.to_s
+
+- [@posts, @read].each do |group|
+  %ol
+    - group.each do |post|
+      %li
+        %a{:href => article_path(:blog => @blog.id, :id => post.id)}
+          != post.title
