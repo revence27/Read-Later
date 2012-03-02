@@ -17,8 +17,10 @@ class ReadlaterController < ApplicationController
   def read
     @blog = SavedBlog.find_by_id request[:blog]
     @post = @blog.saved_posts.unread.find_by_id(request[:id])
-    @post.seen = true
-    @post.save
+    if @post then
+      @post.seen = true
+      @post.save
+    end
     redirect_to blog_path(:id => @blog.id)
   end
 end
