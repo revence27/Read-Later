@@ -6,7 +6,7 @@ class ReadlaterController < ApplicationController
   def blog
     @blog   = SavedBlog.find_by_id request[:id]
     @posts  = @blog.saved_posts.unread.order '"when" ASC'
-    @read   = @blog.saved_posts.where('seen').order 'title ASC'
+    @read   = @blog.saved_posts.where('seen').order '"when" DESC'
   end
 
   def article
