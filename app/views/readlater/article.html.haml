@@ -6,7 +6,8 @@
 
 .byline
   = time_ago_in_words @post.when
-  ago
+  ago on
+  = @post.when.strftime('%d %B, %Y %H:%M')
   = surround '(', ')' do
     %a{:target => '_blank', :href => @post.original} see original
 
@@ -16,4 +17,4 @@
 
 .dashboard
   = button_to 'Mark as read', read_post_path(:blog => @blog.id, :id => @post.id)  # , :confirm => 'This means that you have finished reading it.'
-  = link_to %[Back to #{@blog.name}], blog_path
+  = link_to %[Back to #{@blog.name}], blog_path(:id => @blog.id)
