@@ -23,4 +23,12 @@ class ReadlaterController < ApplicationController
     end
     redirect_to blog_path(:id => @blog.id)
   end
+
+  def image
+    @blog = SavedBlog.find_by_id request[:blog]
+    @post = SavedPost.find_by_id request[:id]
+    @img  = SavedImage.find_by_id request[:image]
+    response.headers['Content-Type'] = @img.content_type
+    render :text => @img.resource_b64.unpack('m').first
+  end
 end

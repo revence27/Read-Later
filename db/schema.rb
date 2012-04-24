@@ -11,11 +11,21 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120215214706) do
+ActiveRecord::Schema.define(:version => 20120424133057) do
 
   create_table "saved_blogs", :force => true do |t|
     t.text     "name"
     t.text     "by"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "saved_images", :force => true do |t|
+    t.text     "resource_b64"
+    t.text     "content_type"
+    t.text     "original"
+    t.text     "suggested_name"
+    t.integer  "saved_post_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
