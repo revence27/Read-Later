@@ -21,7 +21,7 @@ open(source.to_s) do |fch|
   blog.save
   (doc / 'feed/entry').reverse.each do |entry|
     title = (entry / 'title').inner_html
-    post  = SavedPost.where(:title => title, :saved_blog_id  => blog.id).first
+    post  = SavedPost.where(:title => title, :saved_blog_id  => blog.id, :when => Time.mktime(*(entry / 'published').inner_html.split('.').first.split(/\D/))).first
     unless post then
       post  = SavedPost.create :title  => title, :saved_blog_id  => blog.id, :seen => false
     end
