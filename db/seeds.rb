@@ -32,16 +32,18 @@ open(source.to_s) do |fch|
       begin
         rez = ''
         txt = (entry / 'content').inner_html
-        mtc = txt.match /src="([^"]+)"/
+        reg = /src=("|'|&quot;|&apos;)([^"'&]+)("|'|&apos;|&quot;)/
+        mtc = txt.match reg
         while mtc
-          pth = URI.parse(mtc[1])
-          pn  = Pathname.new %[.#{pth.path}]
-          nom = pn.basename
+          pth = URI.parse(mtc[2])
+          pn  = Pathname.new pth.path
+          nom = pn.basename.to_s
           unless pth.absolute then
             pth.host    = source.host
             pth.scheme  = source.scheme
           end
-          img = SavedImage.where(:saved_post_id  => post.id, :suggested_name => nom.to_s, :original => pth.to_s).first
+          # img = SavedImage.where(:saved_post_id  => post.id, :suggested_name => nom.to_s, :original => pth.to_s).first
+          img = SavedImage.where(:original => pth.to_s).first
           $stdout.write "\r"
           $stdout.flush
           unless img then
@@ -59,9 +61,9 @@ open(source.to_s) do |fch|
             $stdout.write((tracker + " [already fetched #{nom}] ... " + (' ' * 80))[0, 79])
             $stdout.flush
           end
-          rez = %[#{rez}#{mtc.pre_match}src="/image/#{blog.id}/#{post.id}/#{img.id}"]
+          rez = %[#{rez}#{mtc.pre_match}src=#{mtc[1]}/image/#{blog.id}/#{post.id}/#{img.id}#{mtc[3]}]
           txt = mtc.post_match
-          mtc = txt.match /src="([^"]+)"/
+          mtc = txt.match reg
           $stdout.write "\r"
           $stdout.flush
         end
