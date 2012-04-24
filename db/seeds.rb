@@ -25,6 +25,9 @@ open(source.to_s) do |fch|
     unless post then
       post  = SavedPost.create :title  => title, :saved_blog_id  => blog.id, :seen => false
     end
+    post.when     = Time.mktime(*(entry / 'published').inner_html.split('.').first.split(/\D/))
+    post.picture  = (entry / 'gd:image').first['src']
+    post.original = (entry / 'link').select {|x| x['rel'] == 'alternate' and x['type'] == 'text/html'}.first['href']
     tracker = ('(%s) %s' % [post.when.strftime('%Y/%m/%d'), post.title.chomp])
     $stdout.write((tracker + ' ... ' + (' ' * 80))[0, 79])
     post.title    = (entry / 'title').inner_html
@@ -69,9 +72,6 @@ open(source.to_s) do |fch|
         end
         rez + txt
       end
-    post.when     = Time.mktime(*(entry / 'published').inner_html.split('.').first.split(/\D/))
-    post.picture  = (entry / 'gd:image').first['src']
-    post.original = (entry / 'link').select {|x| x['rel'] == 'alternate' and x['type'] == 'text/html'}.first['href']
     post.save
     $stdout.write "\r"
     $stdout.flush
