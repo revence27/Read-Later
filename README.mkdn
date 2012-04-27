@@ -1,7 +1,3 @@
 Read Later
 ==========
 Allows you to load Blogger.com weblogs into the DB and read them later, offline, at your pace.
-
-TODO:
------
-1.  Make an interface for adding the feeds, so that it is no longer a matter of `rake db:seed ATOM_FEED=http://theweblog.blogspot.com/feeds/posts/default?max-results=3000`
