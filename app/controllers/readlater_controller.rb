@@ -11,7 +11,6 @@ class ReadlaterController < ApplicationController
     @blog   = SavedBlog.find_by_id request[:id]
     @posts  = @blog.saved_posts.unread.order '"when" ASC'
     @read   = @blog.saved_posts.where(:seen => true).order '"when" DESC'
-    raise Exception.new([@posts.length, @read.length].inspect)
   end
 
   def article
