@@ -60,7 +60,7 @@ class ReadlaterController < ApplicationController
         post.picture  = (entry / 'gd:image').first['src']
         post.original = (entry / 'link').select {|x| x['rel'] == 'alternate' and x['type'] == 'text/html'}.first['href']
         tracker = ('(%s) %s' % [post.when.strftime('%Y/%m/%d'), post.title.chomp])
-        $stdout.write((tracker + ' ... ' + (' ' * 80))[0, 79]) if $stdout.tty?
+        $stderr.write((tracker + ' ... ' + (' ' * 80))[0, 79]) if $stderr.tty?
         post.title    = (entry / 'title').inner_html
         post.html     =
           begin
@@ -78,37 +78,42 @@ class ReadlaterController < ApplicationController
               end
               # img = SavedImage.where(:saved_post_id  => post.id, :suggested_name => nom.to_s, :original => pth.to_s).first
               img = SavedImage.where(:original => pth.to_s).first
-              $stdout.write "\r" if $stdout.tty?
-              $stdout.flush if $stdout.tty?
+              $stderr.write "\r" if $stderr.tty?
+              $stderr.flush if $stderr.tty?
               unless img then
-                $stdout.write((tracker + " [fetching #{nom}] ... " + (' ' * 80))[0, 79]) if $stdout.tty?
-                $stdout.flush if $stdout.tty?
-                ctp, dat  = open pth.to_s do |fch|
-                  [fch.content_type, fch.read]
-                end
+                $stderr.write((tracker + " [fetching #{nom}] ... " + (' ' * 80))[0, 79]) if $stderr.tty?
+                $stderr.flush if $stderr.tty?
+                ctp, dat  =
+                  begin
+                    open pth.to_s do |fch|
+                      [fch.content_type, fch.read]
+                    end
+                  rescue Exception => e
+                    ['application/octet-stream', pth.to_s]
+                  end
                 img = SavedImage.create :saved_post_id => post.id, :original => pth.to_s, :suggested_name => nom.to_s, :content_type => ctp, :resource_b64 => [dat].pack('m')
-                $stdout.write "\r" if $stdout.tty?
-                $stdout.flush if $stdout.tty?
-                $stdout.write((tracker + " [fetched #{nom}] ... " + (' ' * 80))[0, 79]) if $stdout.tty?
-                $stdout.flush if $stdout.tty?
+                $stderr.write "\r" if $stderr.tty?
+                $stderr.flush if $stderr.tty?
+                $stderr.write((tracker + " [fetched #{nom}] ... " + (' ' * 80))[0, 79]) if $stderr.tty?
+                $stderr.flush if $stderr.tty?
               else
-                $stdout.write((tracker + " [already fetched #{nom}] ... " + (' ' * 80))[0, 79]) if $stdout.tty?
-                $stdout.flush if $stdout.tty?
+                $stderr.write((tracker + " [already fetched #{nom}] ... " + (' ' * 80))[0, 79]) if $stderr.tty?
+                $stderr.flush if $stderr.tty?
               end
               # rez = %[#{rez}#{mtc.pre_match}src=#{mtc[1]}/image/#{blog.id}/#{post.id}/#{img.id}#{mtc[3]}]
               rez = %[#{rez}#{mtc.pre_match}src=#{mtc[1]}#{image_path(:blog => blog.id, :id => post.id, :image => img.id)}#{mtc[3]}]
               txt = mtc.post_match
               mtc = txt.match reg
-              $stdout.write "\r" if $stdout.tty?
-              $stdout.flush if $stdout.tty?
+              $stderr.write "\r" if $stderr.tty?
+              $stderr.flush if $stderr.tty?
             end
             rez + txt
           end
         post.save
-        $stdout.write "\r" if $stdout.tty?
-        $stdout.flush if $stdout.tty?
+        $stderr.write "\r" if $stderr.tty?
+        $stderr.flush if $stderr.tty?
       end
-      $stdout.puts if $stdout.tty?
+      $stderr.puts if $stderr.tty?
     end
     redirect_to home_path
   end
