@@ -8,11 +8,17 @@ $number_font: "LintsecRegular", "Monospace";
 $unicef_blue: #00b0f0;
 $unicef_orange: #ffa955;
 $base_colour: #a9a9a9;
+$background_colour: #fff;
 
 body, table
 {
   font-size: 15pt;
   font-family: $general_font;
+}
+
+body
+{
+  background: $background_colour;
 }
 
 a
@@ -232,6 +238,45 @@ select
   {
     margin-top: 1em;
     font-family: $reading_font;
+  }
+
+  .comments
+  {
+    font-size: 75%;
+    font-family: $reading_font;
+
+    .count
+    {
+      font-family: $general_font;
+      font-size: 100%;
+    }
+
+    .comment
+    {
+      margin: 1em;
+      padding: 1em;
+      border: solid 1px $base_colour;
+      border-radius: 1em 1em 0em 0em;
+
+      .author
+      {
+        text-align: right;
+        text-shadow: 0em 0em 1em $base_colour;
+      }
+
+      .pos
+      {
+        color: $background_colour;
+        text-shadow: 0em 0em 0.125em darken($base_colour, 30%);
+        font-size: 120%;
+
+        a
+        {
+          color: inherit;
+          text-decoration: none;
+        }
+      }
+    }
   }
 }
 

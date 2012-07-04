@@ -110,6 +110,32 @@ class ReadlaterController < ApplicationController
             rez + txt
           end
         post.save
+        blogid, postid = (entry / 'id').inner_html.split(':').last.split('.').map {|x| x.split('-').last}
+        comsource = source.clone
+        comsource.path  = %[/feeds/%s/comments/default] % [postid]
+        comsource.query = %[max-results=100000]
+        open(comsource.to_s) do |comfile|
+          hp  = Hpricot::XML(comfile.read)
+          cc  = 1
+          (hp / 'feed/entry').each do |centry|
+            comid = (centry / 'link').select {|x| x['rel'] == 'self' }.first['href']
+            unless SavedComment.find_by_commentid(comid) then
+              cmt = SavedComment.new
+              cmt.author        = (centry / 'author/name').first.inner_html
+              $stderr.write "\r" if $stderr.tty?
+              $stderr.flush if $stderr.tty?
+              $stderr.write((tracker + " [saving comment ##{cc} by #{cmt.author}] ... " + (' ' * 80))[0, 79]) if $stderr.tty?
+              $stderr.flush if $stderr.tty?
+              cmt.commentid     = comid
+              cmt.author_url    = (centry / 'author/uri').first.inner_html
+              cmt.published_at  = Time.mktime(* (centry / 'published').first.inner_html.split(/\D+/)[0 ... 7])
+              cmt.content       = (centry / 'content').first.inner_html
+              cmt.saved_post_id = post.id
+              cmt.save
+            end
+            cc  = cc + 1
+          end
+        end
         $stderr.write "\r" if $stderr.tty?
         $stderr.flush if $stderr.tty?
       end

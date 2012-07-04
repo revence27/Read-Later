@@ -12,9 +12,25 @@
     %a{:target => '_blank', :href => @post.original} see original
 
 .cahouna
-  %img{:alt => %[#{@post.title} by #{@blog.by}], :src => @post.picture, :style => 'float:left; margin: 0.5em; padding: 0.5em;'}/
+  %img{:alt => %[#{@post.title} by #{@blog.by}], :src => @post.picture, :style => 'float:left; margin: 0.5em; padding: 0.5em; width: 10%;'}/
   !=  @post.html.gsub('&lt;', '<').gsub('&gt;', '>').gsub('&apos;', "'").gsub('&quot;', '"').gsub('&amp;', '&')
 
 .dashboard
   = button_to 'Mark as read', read_post_path(:blog => @blog.id, :id => @post.id)  # , :confirm => 'This means that you have finished reading it.'
   = link_to %[Back to #{@blog.name}], blog_path(:id => @blog.id)
+
+.comments
+  - comments  = @post.saved_comments.order('published_at ASC')
+  .count
+    = succeed ' comments:' do
+      = comments.count
+  - cc = 0
+  - comments.each do |comment|
+    - cc = cc + 1
+    .comment
+      .pos
+        = link_to cc, comment.commentid
+      .author
+        = link_to comment.author, comment.author_url
+      .content
+        != comment.content.gsub('&lt;', '<').gsub('&gt;', '>').gsub('&apos;', "'").gsub('&quot;', '"').gsub('&amp;', '&')
