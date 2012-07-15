@@ -10,7 +10,6 @@
       %li
         %a{:href => article_path(:blog => @blog.id, :id => post.id)}
           != post.title
-        - comments  = post.saved_comments
-        - if comments.count > 0 then
+        - if post.comment_count > 0 then
           = surround '(', ' comments)' do
-            = post.saved_comments.length
+            = post.comment_count

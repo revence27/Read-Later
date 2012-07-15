@@ -19,7 +19,7 @@
   = button_to 'Mark as read', read_post_path(:blog => @blog.id, :id => @post.id)  # , :confirm => 'This means that you have finished reading it.'
   = link_to %[Back to #{@blog.name}], blog_path(:id => @blog.id)
 
-.comments
+.comments{:id => '#comments'}
   - comments  = @post.saved_comments.order('published_at ASC')
   .count
     = succeed ' comments:' do

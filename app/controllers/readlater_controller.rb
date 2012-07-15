@@ -116,7 +116,7 @@ class ReadlaterController < ApplicationController
         comsource.query = %[max-results=100000]
         open(comsource.to_s) do |comfile|
           hp  = Hpricot::XML(comfile.read)
-          cc  = 1
+          cc  = 0
           (hp / 'feed/entry').each do |centry|
             comid = (centry / 'link').select {|x| x['rel'] == 'self' }.first['href']
             unless SavedComment.find_by_commentid(comid) then
@@ -124,7 +124,7 @@ class ReadlaterController < ApplicationController
               cmt.author        = (centry / 'author/name').first.inner_html
               $stderr.write "\r" if $stderr.tty?
               $stderr.flush if $stderr.tty?
-              $stderr.write((tracker + " [saving comment ##{cc} by #{cmt.author}] ... " + (' ' * 80))[0, 79]) if $stderr.tty?
+              $stderr.write((tracker + " [saving comment ##{cc + 1} by #{cmt.author}] ... " + (' ' * 80))[0, 79]) if $stderr.tty?
               $stderr.flush if $stderr.tty?
               cmt.commentid     = comid
               cmt.author_url    = (centry / 'author/uri').first.inner_html
@@ -135,6 +135,8 @@ class ReadlaterController < ApplicationController
             end
             cc  = cc + 1
           end
+          post.comment_count  = cc
+          post.save
         end
         $stderr.write "\r" if $stderr.tty?
         $stderr.flush if $stderr.tty?
