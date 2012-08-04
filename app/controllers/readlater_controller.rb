@@ -56,6 +56,7 @@ class ReadlaterController < ApplicationController
         unless post then
           post  = SavedPost.create :title  => title, :saved_blog_id  => blog.id, :seen => false
         end
+        post.title    = %[##{post.id}] unless post.title.length > 0
         post.when     = Time.mktime(*(entry / 'published').inner_html.split('.').first.split(/\D/))
         post.picture  = (entry / 'gd:image').first['src']
         post.original = (entry / 'link').select {|x| x['rel'] == 'alternate' and x['type'] == 'text/html'}.first['href']
@@ -70,35 +71,45 @@ class ReadlaterController < ApplicationController
             mtc = txt.match reg
             while mtc
               pth = URI.parse(mtc[2])
-              pn  = Pathname.new pth.path
-              nom = pn.basename.to_s
-              unless pth.absolute then
-                pth.host    = source.host
-                pth.scheme  = source.scheme
-              end
-              # img = SavedImage.where(:saved_post_id  => post.id, :suggested_name => nom.to_s, :original => pth.to_s).first
-              img = SavedImage.where(:original => pth.to_s).first
-              $stderr.write "\r" if $stderr.tty?
-              $stderr.flush if $stderr.tty?
-              unless img then
-                $stderr.write((tracker + " [fetching #{nom}] ... " + (' ' * 80))[0, 79]) if $stderr.tty?
-                $stderr.flush if $stderr.tty?
-                ctp, dat  =
-                  begin
-                    open pth.to_s do |fch|
-                      [fch.content_type, fch.read]
-                    end
-                  rescue Exception => e
-                    ['application/octet-stream', pth.to_s]
-                  end
-                img = SavedImage.create :saved_post_id => post.id, :original => pth.to_s, :suggested_name => nom.to_s, :content_type => ctp, :resource_b64 => [dat].pack('m')
+              if pth.scheme == 'data' then
+                ctp, dat = pth.opaque.split(';', 2)
+                pthid    = Digest::SHA1.new << pth.opaque
+                img = SavedImage.create :saved_post_id => post.id, :original => pthid.to_s, :suggested_name => pthid.to_s, :content_type => ctp, :resource_b64 => dat.split('base64,', 2).last
                 $stderr.write "\r" if $stderr.tty?
                 $stderr.flush if $stderr.tty?
-                $stderr.write((tracker + " [fetched #{nom}] ... " + (' ' * 80))[0, 79]) if $stderr.tty?
+                $stderr.write((tracker + " [recorded an embedded #{ctp}] ... " + (' ' * 80))[0, 79]) if $stderr.tty?
                 $stderr.flush if $stderr.tty?
               else
-                $stderr.write((tracker + " [already fetched #{nom}] ... " + (' ' * 80))[0, 79]) if $stderr.tty?
+                pn  = Pathname.new pth.path
+                nom = pn.basename.to_s
+                unless pth.absolute then
+                  pth.host    = source.host
+                  pth.scheme  = source.scheme
+                end
+                # img = SavedImage.where(:saved_post_id  => post.id, :suggested_name => nom.to_s, :original => pth.to_s).first
+                img = SavedImage.where(:original => pth.to_s).first
+                $stderr.write "\r" if $stderr.tty?
                 $stderr.flush if $stderr.tty?
+                unless img then
+                  $stderr.write((tracker + " [fetching #{nom}] ... " + (' ' * 80))[0, 79]) if $stderr.tty?
+                  $stderr.flush if $stderr.tty?
+                  ctp, dat  =
+                    begin
+                      open pth.to_s do |fch|
+                        [fch.content_type, fch.read]
+                      end
+                    rescue Exception => e
+                      ['application/octet-stream', pth.to_s]
+                    end
+                  img = SavedImage.create :saved_post_id => post.id, :original => pth.to_s, :suggested_name => nom.to_s, :content_type => ctp, :resource_b64 => [dat].pack('m')
+                  $stderr.write "\r" if $stderr.tty?
+                  $stderr.flush if $stderr.tty?
+                  $stderr.write((tracker + " [fetched #{nom}] ... " + (' ' * 80))[0, 79]) if $stderr.tty?
+                  $stderr.flush if $stderr.tty?
+                else
+                  $stderr.write((tracker + " [already fetched #{nom}] ... " + (' ' * 80))[0, 79]) if $stderr.tty?
+                  $stderr.flush if $stderr.tty?
+                end
               end
               # rez = %[#{rez}#{mtc.pre_match}src=#{mtc[1]}/image/#{blog.id}/#{post.id}/#{img.id}#{mtc[3]}]
               rez = %[#{rez}#{mtc.pre_match}src=#{mtc[1]}#{image_path(:blog => blog.id, :id => post.id, :image => img.id)}#{mtc[3]}]
@@ -127,7 +138,7 @@ class ReadlaterController < ApplicationController
               $stderr.write((tracker + " [saving comment ##{cc + 1} by #{cmt.author}] ... " + (' ' * 80))[0, 79]) if $stderr.tty?
               $stderr.flush if $stderr.tty?
               cmt.commentid     = comid
-              cmt.author_url    = (centry / 'author/uri').first.inner_html
+              cmt.author_url    = ((centry / 'author/uri').first.inner_html rescue '')
               cmt.published_at  = Time.mktime(* (centry / 'published').first.inner_html.split(/\D+/)[0 ... 7])
               cmt.content       = (centry / 'content').first.inner_html
               cmt.saved_post_id = post.id
