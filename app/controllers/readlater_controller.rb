@@ -66,7 +66,8 @@ class ReadlaterController < ApplicationController
         post.html     =
           begin
             rez = ''
-            txt = (entry / 'content').inner_html
+            cnd = (entry / 'content')
+            txt = if cnd.empty? then (entry / 'summary') else cnd end.inner_html
             reg = /src=("|'|&quot;|&apos;)([^"'&]+)("|'|&apos;|&quot;)/
             mtc = txt.match reg
             while mtc
@@ -140,7 +141,9 @@ class ReadlaterController < ApplicationController
               cmt.commentid     = comid
               cmt.author_url    = ((centry / 'author/uri').first.inner_html rescue '')
               cmt.published_at  = Time.mktime(* (centry / 'published').first.inner_html.split(/\D+/)[0 ... 7])
-              cmt.content       = (centry / 'content').first.inner_html
+              cmt.content       = (centry / 'content').first
+              cmt.content       = (centry / 'summary').first unless cmt.content
+              cmt.content       = cmt.content.inner_html
               cmt.saved_post_id = post.id
               cmt.save
             end
