@@ -12,7 +12,8 @@
     %a{:target => '_blank', :href => @post.original} see original
 
 .cahouna
-  %img{:alt => %[#{@post.title} by #{@blog.by}], :src => @post.picture, :style => 'float:left; margin: 0.5em; padding: 0.5em; width: 10%;'}/
+  - if @post.picture then
+    %img{:alt => %[#{@post.title} by #{@blog.by}], :src => @post.picture, :style => 'float:left; margin: 0.5em; padding: 0.5em; width: 10%;'}/
   !=  @post.html.gsub('&lt;', '<').gsub('&gt;', '>').gsub('&apos;', "'").gsub('&quot;', '"').gsub('&amp;', '&')
 
 .dashboard

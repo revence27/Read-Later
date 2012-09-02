@@ -48,26 +48,27 @@ class ReadlaterController < ApplicationController
         blog  = SavedBlog.new :name => title
       end
       blog.name = (doc / 'feed/title').first.inner_html rescue (doc / 'title').first.inner_html
-      blog.by   = (doc / 'feed/author/name').first.inner_html
+      bby       = (doc / 'feed/author/name').first
+      blog.by   = (if bby then bby else (doc / 'author/name').first end.inner_html) rescue 'an anonymous writer'
       blog.save
       (doc / 'feed/entry').reverse.each do |entry|
-        title = (entry / 'title').inner_html
+        title = (entry / 'title').inner_text
         post  = SavedPost.where(:title => title, :saved_blog_id  => blog.id, :when => Time.mktime(*(entry / 'published').inner_html.split('.').first.split(/\D/))).first
         unless post then
           post  = SavedPost.create :title  => title, :saved_blog_id  => blog.id, :seen => false
         end
         post.title    = %[##{post.id}] unless post.title.length > 0
         post.when     = Time.mktime(*(entry / 'published').inner_html.split('.').first.split(/\D/))
-        post.picture  = (entry / 'gd:image').first['src']
+        post.picture  = (entry / 'gd:image').first['src'] rescue nil
         post.original = (entry / 'link').select {|x| x['rel'] == 'alternate' and x['type'] == 'text/html'}.first['href']
         tracker = ('(%s) %s' % [post.when.strftime('%Y/%m/%d'), post.title.chomp])
         $stderr.write((tracker + ' ... ' + (' ' * 80))[0, 79]) if $stderr.tty?
-        post.title    = (entry / 'title').inner_html
+        post.title    = (entry / 'title').inner_text
         post.html     =
           begin
             rez = ''
             cnd = (entry / 'content')
-            txt = if cnd.empty? then (entry / 'summary') else cnd end.inner_html
+            txt = if cnd.empty? then (entry / 'summary') else cnd end.inner_text
             reg = /src=("|'|&quot;|&apos;)([^"'&]+)("|'|&apos;|&quot;)/
             mtc = txt.match reg
             while mtc
@@ -126,31 +127,34 @@ class ReadlaterController < ApplicationController
         comsource = source.clone
         comsource.path  = %[/feeds/%s/comments/default] % [postid]
         comsource.query = %[max-results=100000]
-        open(comsource.to_s) do |comfile|
-          hp  = Hpricot::XML(comfile.read)
-          cc  = 0
-          (hp / 'feed/entry').each do |centry|
-            comid = (centry / 'link').select {|x| x['rel'] == 'self' }.first['href']
-            unless SavedComment.find_by_commentid(comid) then
-              cmt = SavedComment.new
-              cmt.author        = (centry / 'author/name').first.inner_html
-              $stderr.write "\r" if $stderr.tty?
-              $stderr.flush if $stderr.tty?
-              $stderr.write((tracker + " [saving comment ##{cc + 1} by #{cmt.author}] ... " + (' ' * 80))[0, 79]) if $stderr.tty?
-              $stderr.flush if $stderr.tty?
-              cmt.commentid     = comid
-              cmt.author_url    = ((centry / 'author/uri').first.inner_html rescue '')
-              cmt.published_at  = Time.mktime(* (centry / 'published').first.inner_html.split(/\D+/)[0 ... 7])
-              cmt.content       = (centry / 'content').first
-              cmt.content       = (centry / 'summary').first unless cmt.content
-              cmt.content       = cmt.content.inner_html
-              cmt.saved_post_id = post.id
-              cmt.save
+        begin
+          open(comsource.to_s) do |comfile|
+            hp  = Hpricot::XML(comfile.read)
+            cc  = 0
+            (hp / 'feed/entry').each do |centry|
+              comid = (centry / 'link').select {|x| x['rel'] == 'self' }.first['href']
+              unless SavedComment.find_by_commentid(comid) then
+                cmt = SavedComment.new
+                cmt.author        = (centry / 'author/name').first.inner_html
+                $stderr.write "\r" if $stderr.tty?
+                $stderr.flush if $stderr.tty?
+                $stderr.write((tracker + " [saving comment ##{cc + 1} by #{cmt.author}] ... " + (' ' * 80))[0, 79]) if $stderr.tty?
+                $stderr.flush if $stderr.tty?
+                cmt.commentid     = comid
+                cmt.author_url    = ((centry / 'author/uri').first.inner_html rescue '')
+                cmt.published_at  = Time.mktime(* (centry / 'published').first.inner_html.split(/\D+/)[0 ... 7])
+                cmt.content       = (centry / 'content').first
+                cmt.content       = (centry / 'summary').first unless cmt.content
+                cmt.content       = cmt.content.inner_html
+                cmt.saved_post_id = post.id
+                cmt.save
+              end
+              cc  = cc + 1
             end
-            cc  = cc + 1
+            post.comment_count  = cc
+            post.save
           end
-          post.comment_count  = cc
-          post.save
+        rescue 
         end
         $stderr.write "\r" if $stderr.tty?
         $stderr.flush if $stderr.tty?
