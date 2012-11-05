@@ -4,11 +4,36 @@
 - content_for :posttitle do
   Welcome
 
-%ol
-  - @blogs.each do |blog|
-    %li
-      %a{:href => blog_path(:id => blog.id)} #{blog.name}
-      by
-      = blog.by
-      = surround '(', ' left to read)' do
-        = blog.saved_posts.unread.count
+%table
+  %thead
+    %tr
+      %th
+        &nbsp;
+      %th
+        Name
+      %th
+        Author
+      %th
+        Left to read
+      %th
+        &nbsp;
+  %tbody
+    - @blogs.each_with_index do |blog, i|
+      %tr
+        %td
+          #{i + 1}
+        %td
+          %a{:href => blog_path(:id => blog.id)} #{blog.name}
+        %td
+          - if blog.saved_posts.count > 1 then
+            - fst = blog.saved_posts.first
+            - if fst.picture then
+              %img{:src => fst.picture, :style => 'height: 5em;'}/
+              %br/
+          = blog.by
+        %td
+          = blog.saved_posts.unread.count
+        %td
+          = form_tag delete_blog_path(:blog => blog.id), {:style => 'display: inline;', :method => :post} do
+            %input{:type => :hidden, :value => blog.id, :name => :blog}/
+            %input{:value => 'Delete', :type => :submit}/

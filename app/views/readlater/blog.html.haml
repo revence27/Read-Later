@@ -4,12 +4,33 @@
 - content_for :posttitle do
   = %[Number of new articles: ] + @blog.saved_posts.unread.count.to_s
 
-- [@posts, @read].each do |group|
-  %ol
-    - group.each do |post|
-      %li
-        %a{:href => article_path(:blog => @blog.id, :id => post.id)}
-          != post.title
-        - if post.comment_count > 0 then
-          = surround '(', ' comments)' do
-            = post.comment_count
+= form_tag delete_entries_path(:blog => @blog.id), {:style => 'display: inline;', :method => :post} do
+  - [@posts, @read].select {|x| not x.empty?}.each do |group|
+    %input{:type => :hidden, :value => @blog.id, :name => :blog}/
+    %table
+      %thead
+        %tr
+          %th
+            &nbsp;
+          %th
+            &nbsp;
+          %th
+            Title
+          %th
+            Comments
+      %tbody
+        - group.each_with_index do |post, i|
+          %tr
+            %td
+              #{i + 1}
+            %td
+              %input{:type => :checkbox, :value => post.id, :name => 'post[]', :id => "post#{post.id}"}/
+            %td
+              %a{:href => article_path(:blog => @blog.id, :id => post.id)} #{post.title}
+              %small{:style => 'font-size: xx-small; color: #999;'}
+                = post.when.strftime('%d %B %Y %X')
+            %td
+              - if post.comment_count > 0 then
+                = post.comment_count
+  %input{:value => 'Mark as Read', :name => 'mark', :type => :submit}/
+  %input{:value => 'Delete', :type => :submit}/

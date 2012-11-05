@@ -36,6 +36,29 @@ class ReadlaterController < ApplicationController
     render :text => @img.resource_b64.unpack('m').first
   end
 
+  def delete_blog
+    @blog = SavedBlog.find_by_id request[:blog]
+    @blog.saved_posts.each do |p|
+      p.delete
+    end
+    @blog.delete
+    redirect_to home_path
+  end
+
+  def delete_entries
+    @blog = SavedBlog.find_by_id request[:blog]
+    request[:post].each do |post|
+      sp  = SavedPost.find_by_id(post)
+      if request[:mark] and request[:mark] != '' then
+        sp.seen = true
+        sp.save
+      else
+        sp.delete
+      end
+    end
+    redirect_to blog_path(:id => @blog.id)
+  end
+
   def fetch
     feed  = request[:feed]
     return unless feed and feed.length > 7
