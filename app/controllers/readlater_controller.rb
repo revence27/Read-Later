@@ -63,6 +63,13 @@ class ReadlaterController < ApplicationController
     feed  = request[:feed]
     return unless feed and feed.length > 7
     source  = URI.parse feed
+    if request[:max] == 'max' then
+      extramax        = 'max-results=9000000000'
+      if source.query then
+        extramax =  "#{source.query}&max-results=9000000000"
+      end
+      source.query =  extramax
+    end
     open(source.to_s) do |fch|
       doc   = Hpricot::XML(fch)
       title = (doc / 'feed/title').first.inner_html rescue (doc / 'title').first.inner_html
@@ -70,9 +77,10 @@ class ReadlaterController < ApplicationController
       unless blog then
         blog  = SavedBlog.new :name => title
       end
-      blog.name = (doc / 'feed/title').first.inner_html rescue (doc / 'title').first.inner_html
-      bby       = (doc / 'feed/author/name').first
-      blog.by   = (if bby then bby else (doc / 'author/name').first end.inner_html) rescue 'an anonymous writer'
+      blog.name     = (doc / 'feed/title').first.inner_html rescue (doc / 'title').first.inner_html
+      bby           = (doc / 'feed/author/name').first
+      blog.by       = (if bby then bby else (doc / 'author/name').first end.inner_html) rescue 'an anonymous writer'
+      blog.feed_url = feed
       blog.save
       (doc / 'feed/entry').reverse.each do |entry|
         title = (entry / 'title').inner_text

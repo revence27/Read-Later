@@ -30,10 +30,30 @@
             - if fst.picture then
               %img{:src => fst.picture, :style => 'height: 5em;'}/
               %br/
-          = blog.by
+          - if blog.feed_url then
+            = link_to blog.by, blog.feed_url
+          - else
+            = blog.by
         %td
           = blog.saved_posts.unread.count
         %td
+          = form_tag fetch_path(:blog => blog.id), {:style => 'display: inline;', :method => :post} do
+            %input{:type => :hidden, :value => blog.feed_url, :name => :feed}/
+            %input{:value => 'Update', :type => :submit}/
+          %br/
           = form_tag delete_blog_path(:blog => blog.id), {:style => 'display: inline;', :method => :post} do
             %input{:type => :hidden, :value => blog.id, :name => :blog}/
             %input{:value => 'Delete', :type => :submit}/
+  %tfoot
+    %tr
+      %td
+        &nbsp;
+      %td
+        &nbsp;
+      %td
+        &nbsp;
+      %th
+        &nbsp;
+      %th
+        &nbsp;
+        - # Perhaps put an update-all button here.

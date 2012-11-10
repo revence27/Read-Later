@@ -11,13 +11,14 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120714173549) do
+ActiveRecord::Schema.define(:version => 20121110184053) do
 
   create_table "saved_blogs", :force => true do |t|
     t.text     "name"
     t.text     "by"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.text     "feed_url"
   end
 
   create_table "saved_comments", :force => true do |t|

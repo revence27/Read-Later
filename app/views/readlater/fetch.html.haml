@@ -1,5 +1,15 @@
+- content_for :blogtitle do
+  Add Blog
+
+- content_for :posttitle do
+  Submit Link
+
 %form{:method => :POST}
   %fieldset
     %legend Enter the URL of the feed
     %input{:name => :feed, :type => :text, :style => 'width:100%;'}/
+    %br/
+    %input{:type => :checkbox, :value => 'max', :name => 'max', :id => :maximiser}/
+    %label{:for => :maximiser} Maximise records
+    %br/
     %input{:type => :submit, :value => 'Fetch'}
