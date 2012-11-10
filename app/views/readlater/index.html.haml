@@ -37,7 +37,7 @@
         %td
           = blog.saved_posts.unread.count
         %td
-          = form_tag fetch_path(:blog => blog.id), {:style => 'display: inline;', :method => :post} do
+          = form_tag fetch_path, {:style => 'display: inline;', :method => :post} do
             %input{:type => :hidden, :value => blog.feed_url, :name => :feed}/
             %input{:value => 'Update', :type => :submit}/
           %br/
