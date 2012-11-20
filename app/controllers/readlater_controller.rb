@@ -64,9 +64,9 @@ class ReadlaterController < ApplicationController
     return unless feed and feed.length > 7
     source  = URI.parse feed
     if request[:max] == 'max' then
-      extramax        = 'max-results=9000000000'
+      extramax        = 'max-results=10000'
       if source.query then
-        extramax =  "#{source.query}&max-results=9000000000"
+        extramax =  "#{source.query}&max-results=10000"
       end
       source.query =  extramax
     end
